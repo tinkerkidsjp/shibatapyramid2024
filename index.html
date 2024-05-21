@@ -1,0 +1,483 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=0.75">
+<title>新発田市オープンデータ</title>
+<script type="text/javascript" src="database.js"></script>
+<script>
+    var data_m = [];
+    var data_w = [];
+    var old = ['0~4','5~9','10~14','15~19','20~24','25~29','30~34','35~39','40~44','45~49','50~54','55~59','60~64','65~69','70~74','75~79','80~84','85~89','90~94','95~99','100~'];
+    var year = 0;
+    var month = 0;
+    function time_set() {
+        for (var i = 0; i < database_m.length; i++) {
+            for (var j = 0; j < database_m[i].length; j++) {
+                if (database_m[i][j].length != 0) {
+                    year = i + 2016;
+                    month = j + 1;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    var chart_version = 0;
+    function dropdown(onload, selected_year, selected_month) {
+        if (onload == 1) {
+            time_set();
+        }
+        var select_box_year = document.getElementById('year');
+        var select_box_month = document.getElementById('month');
+        if (onload != 1) {
+            for (var i = select_box_year.length - 1; i >= 0; i--) {
+                select_box_year.remove(i);
+            }
+            for (var i = select_box_month.length - 1; i >= 0; i--) {
+                select_box_month.remove(i);
+            }
+        }
+        for (var i = 2016; i < year + 1; i++) {
+            var select = document.getElementById('year');
+            var option = document.createElement('option');
+            option.text = i;
+            option.value = i;
+            select.appendChild(option);
+            if (option.value == year && onload == 1) {
+                option.setAttribute("selected", true);
+            } else if (option.value == selected_year && onload == 0) {
+                option.setAttribute("selected", true);
+            } else if (option.value == selected_year + 2016 && onload == 2) {
+                option.setAttribute("selected", true);
+            }
+        }
+        for (var i = 1; i < 13; i++) {
+            var select = document.getElementById('month');
+            var option = document.createElement('option');
+            option.text = i;
+            option.value = i;
+            select.appendChild(option);
+            if (onload == 1) {
+                if (option.value == month) {
+                    option.setAttribute("selected", true);
+                    break;
+                }
+            } else if (onload == 0) {
+                if (year == selected_year && month < selected_month) {
+                    if (option.value == month) {
+                        option.setAttribute("selected", true);
+                        break;
+                    }
+                } else {
+                    if (option.value == selected_month) {
+                        option.setAttribute("selected", true);
+                    }
+                    if (year == selected_year && option.value == month) {
+                        break;
+                    }
+                }
+            } else if (onload == 2) {
+                if (option.value == selected_month + 1) {
+                    option.setAttribute("selected", true);
+                    if (year == selected_year + 2016) {
+                        break;
+                    }
+                }
+            }
+        }
+        if (onload == 1) {
+            setting(0);
+        }
+    }
+    var year_gap = 0;
+    var month_gap = 0;
+    var frame = 0;
+    var on_off = 'on';
+    var setinterval;
+    function setting(animation_button) {
+        year_gap = 0;
+        month_gap = 0;
+        frame = 0;
+        var selected_year = document.getElementById('year').value;
+        var selected_month = document.getElementById('month').value;
+        var div_pyramid = document.getElementById('population_pyramid');
+        var div_chart = document.getElementById('pie_chart');
+        dropdown(0, selected_year, selected_month);
+        if (year == selected_year && month < selected_month) {
+            selected_year = year;
+            selected_month = month;
+        }
+        if (animation_button == 3) {
+            chart_version = 0;
+        }
+        if (animation_button == 2 || chart_version == 1) {
+            clearInterval(setinterval);
+            on_off = 'off';
+            div_pyramid.style.display = 'none';
+            div_chart.style.display = 'block';
+            setinterval = setInterval(chart, 1, selected_year - 2016, selected_month - 1);
+        } else if (animation_button == 0 || animation_button == 3) {
+            if (on_off == 'off') {
+                clearInterval(setinterval);
+            }
+            div_pyramid.style.display = 'block';
+            div_chart.style.display = 'none';
+            chart_version = 0;
+            // 指定した間隔で関数を実行する
+            setinterval = setInterval(glaph, 1, selected_year - 2016, selected_month - 1, 0);
+        } else if (animation_button == 1) {
+            chart_version = 0;
+            animation(selected_year - 2016, selected_month - 1);
+        }
+    }
+
+    function glaph(selected_year, selected_month, animation_mode) {
+        data_m = database_m[selected_year + year_gap][selected_month + month_gap];
+        data_w = database_w[selected_year + year_gap][selected_month + month_gap];
+        if (animation_mode == 1) {
+            dropdown(2, selected_year + year_gap, selected_month + month_gap);
+            if (year == selected_year + 2016 + year_gap && month == selected_month + 1 + month_gap) {
+                clearInterval(setinterval);
+                glaph(selected_year, selected_month, 0);
+            } else {
+                if (selected_month + 1 + month_gap <= 11) {
+                    month_gap++
+                } else if (selected_month + 1 + month_gap >= 12) {
+                    year_gap++
+                    month_gap = 0 - selected_month;
+                }
+            }
+        } else if (animation_mode == 0) {
+            on_off = 'on';
+        }
+
+        var over_frame = 0;
+        frame = frame + 5;
+        var canvas = document.getElementById('canvas');
+        var pen = canvas.getContext("2d");
+        pen.clearRect(0, 0, canvas.width, canvas.height);
+
+        pen.beginPath();
+        pen.lineWidth = 15;
+        for (var i = 0; i < old.length; i++) {
+            if (i <= 2) {
+                pen.beginPath();
+                pen.strokeStyle = "rgba(0,0,200,0.75)";
+            } else if (i >= 3 && i <= 12) {
+                pen.beginPath();
+                pen.strokeStyle = "rgba(0,200,0,0.75)";
+            } else if (i >= 13) {
+                pen.beginPath();
+                pen.strokeStyle = "rgba(200,0,0,0.75)";
+            }
+            pen.moveTo(canvas.width / 2, 375 - i * 17);
+            if (animation_mode == 0) {
+                if (frame > data_m[i] / 30) {
+                    over_frame++
+                    pen.lineTo(canvas.width / 2 - data_m[i] / 30 - 0.5, 375 - i * 17);
+                } else {
+                    pen.lineTo(canvas.width / 2 - frame - 0.5, 375 - i * 17);
+                }
+            } else {
+                pen.lineTo(canvas.width / 2 - data_m[i] / 30 - 0.5, 375 - i * 17);
+            }
+            pen.stroke();
+        }
+        pen.beginPath();
+        for (var i = 0; i < old.length; i++) {
+            if (i <= 2) {
+                pen.beginPath();
+                pen.strokeStyle = "rgba(0,0,200,0.75)";
+            } else if (i >= 3 && i <= 12) {
+                pen.beginPath();
+                pen.strokeStyle = "rgba(0,200,0,0.75)";
+            } else if (i >= 13) {
+                pen.beginPath();
+                pen.strokeStyle = "rgba(200,0,0,0.75)";
+            }
+            pen.moveTo(canvas.width / 2, 375 - i * 17);
+            if (animation_mode == 0) {
+                if (frame > data_w[i] / 30) {
+                    over_frame++
+                    pen.lineTo(canvas.width / 2 + data_w[i] / 30 + 0.5, 375 - i * 17);
+                } else {
+                    pen.lineTo(canvas.width / 2 + frame + 0.5, 375 - i * 17);
+                }
+            } else {
+                pen.lineTo(canvas.width / 2 + data_w[i] / 30 + 0.5, 375 - i * 17);
+            }
+            pen.stroke();
+        }
+
+        pen.beginPath();
+        pen.strokeStyle = "rgb(0,0,0)";
+        pen.lineWidth = 1;
+        pen.moveTo(canvas.width / 2 - 0.5, 0);
+        pen.lineTo(canvas.width / 2 - 0.5, 400);
+        pen.stroke();
+
+        pen.beginPath();
+        pen.font = "17px sans-serif";
+        pen.textAlign = 'center';
+        pen.fillText(0, canvas.width / 2, canvas.height - 5);
+        pen.textAlign = 'left';
+        pen.fillText('男性', 105, 20);
+        pen.textAlign = 'right';
+        pen.fillText('女性', canvas.width - 105, 20);
+
+        for (var i = 1; i * 2000 < 4001; i++) {
+            pen.beginPath();
+            pen.strokeStyle = "rgba(0,0,0,0.5)";
+            pen.textAlign = 'center';
+            pen.font = "17px sans-serif";
+            pen.lineWidth = 1;
+            pen.moveTo(canvas.width / 2 + i * 2000 / 30, 0);
+            pen.lineTo(canvas.width / 2 + i * 2000 / 30, 400);
+            pen.fillText(i * 2000, canvas.width / 2 + i * 2000 / 30, canvas.height - 5);
+            pen.moveTo(canvas.width / 2 - i * 2000 / 30, 0);
+            pen.lineTo(canvas.width / 2 - i * 2000 / 30, 400);
+            pen.fillText(i * 2000, canvas.width / 2 - i * 2000 / 30, canvas.height - 5);
+            pen.stroke();
+        }
+        pen.fillText('(人)', canvas.width / 2 + 200, canvas.height - 5);
+
+        pen.beginPath();
+        pen.fillStyle = "rgb(0,0,0)";
+        pen.textAlign = 'center';
+        pen.font = "15px sans-serif";
+        for (var i = 0; i < old.length; i++){
+            pen.fillText(old[i], 40, 380 - i * 17);
+        }
+        pen.fillText('(歳)', 40, 400);
+        var all_population = 0;
+        var young_population = 0;
+        var work_population = 0;
+        var old_population = 0;
+        for (var i = 0; i < data_m.length; i++) {
+            all_population = all_population + data_m[i] + data_w[i];
+            if (i >= 0 && i <= 2) {
+                young_population = young_population + data_m[i] + data_w[i];
+            } else if (i >= 3 && i <= 12) {
+                work_population = work_population + data_m[i] + data_w[i];
+            } else if (i >= 13 && i <= 20) {
+                old_population = old_population + data_m[i] + data_w[i];
+            }
+        }
+        young_population = Math.round(young_population * 100 / all_population);
+        work_population = Math.round(work_population * 100 / all_population);
+        old_population = Math.round(old_population * 100 / all_population);
+        pen.textAlign = 'center';
+        pen.font = "15px sans-serif";
+        pen.fillText('~15歳', canvas.width - 45, 380 - 25);
+        pen.fillText('割合' + young_population + '%', canvas.width - 45, 380 - 5);
+        pen.fillText('16~64歳', canvas.width - 45, 380 - 140);
+        pen.fillText('割合' + work_population + '%', canvas.width - 45, 380 - 120);
+        pen.fillText('65歳~', canvas.width - 45, 380 - 295);
+        pen.fillText('割合' + old_population + '%', canvas.width - 45, 380 - 275);
+
+        if (animation_mode == 0) {
+            if (over_frame == old.length * 2) {
+                // setintervalを終わらせる
+                clearInterval(setinterval);
+            }
+        }
+    }
+
+    function animation(selected_year, selected_month) {
+        if (on_off == 'on') {
+            on_off = 'off';
+            clearInterval(setinterval);
+            setinterval = setInterval(glaph, 1000/30, selected_year, selected_month, 1);
+        } else {
+            year_gap = 0;
+            month_gap = 0;
+            on_off = 'on';
+            clearInterval(setinterval);
+        }
+    }
+
+    var over_frame_chart = 0;
+    function chart(selected_year, selected_month) {
+        data_m = database_m[selected_year][selected_month];
+        data_w = database_w[selected_year][selected_month];
+        frame = frame + 5;
+        var canvas = document.getElementById('canvas');
+        var pen = canvas.getContext("2d");
+        pen.clearRect(0, 0, canvas.width, canvas.height);
+
+        var all_population = 0;
+        var young_population = 0;
+        var work_population = 0;
+        var old_population = 0;
+        for (var i = 0; i < data_m.length; i++) {
+            all_population = all_population + data_m[i] + data_w[i];
+            if (i <= 2) {
+                young_population = young_population + data_m[i] + data_w[i];
+            } else if (i >= 3 && i <= 12) {
+                work_population = work_population + data_m[i] + data_w[i];
+            } else if (i >= 13) {
+                old_population = old_population + data_m[i] + data_w[i];
+            }
+        }
+        young_population = Math.round(young_population * 100 / all_population);
+        work_population = Math.round(work_population * 100 / all_population);
+        old_population = Math.round(old_population * 100 / all_population);
+        if (young_population + work_population + old_population != 100) {
+            old_population = 100 - young_population - work_population;
+        }
+
+        var radianStart = 0;
+        var percentage = 0;
+        pen.beginPath();
+        // arc(x軸,y軸,半径,始まりの角度(ラジアン角),終わりの角度(ラジアン角),円ならtrue弧ならfalse) Math.PI == π
+        pen.arc(canvas.width / 2, canvas.height / 2 - 15, 120, 0, Math.PI * 2, true);
+        pen.stroke();
+        pen.fillStyle = "rgb(0,0,200)";
+
+        for (var i = 0; i <= young_population; i++) {
+            over_frame_chart = 0;
+            if (i <= frame) {
+                if (i >= young_population) {
+                    percentage = young_population * 3.6 - 90;
+                    over_frame_chart = 1;
+                    pen.beginPath();
+                    pen.fillStyle = "rgb(0,0,200)";
+                } else {
+                    percentage = i * 3.6 - 90;
+                }
+                radianStart = 270 * Math.PI / 180;
+                var radianEnd =  percentage * Math.PI / 180;
+                // 円の中心に移動してから
+                pen.moveTo(canvas.width / 2, canvas.height / 2 - 15);
+                // 円の中心と割合の角度二点をつなぐ
+                pen.arc(canvas.width / 2, canvas.height / 2 - 15, 120, radianStart, radianEnd, false);
+                pen.closePath();
+                pen.fill();
+            }
+        }
+        if (over_frame_chart >= 1) {
+            for (var i = young_population; i <= young_population + work_population; i++) {
+                if (i <= frame) {
+                    if (i >= young_population + work_population) {
+                        percentage = (young_population + work_population) * 3.6 - 90;
+                        over_frame_chart = 2;
+                    } else {
+                        percentage = i * 3.6 - 90;
+                    }
+                    radianStart = (young_population * 3.6 - 90) * Math.PI / 180;
+                    var radianEnd =  percentage * Math.PI / 180;
+                    pen.beginPath();
+                    pen.fillStyle = "rgb(0,200,0)";
+                    pen.moveTo(canvas.width / 2, canvas.height / 2 - 15);
+                    pen.arc(canvas.width / 2, canvas.height / 2 - 15, 120, radianStart, radianEnd, false);
+                    pen.closePath();
+                    pen.fill();
+                }
+            }
+        }
+        if (over_frame_chart >= 2) {
+            for (var i = young_population + work_population; i <= 100; i++) {
+                if (i <= frame) {
+                    if (i >= 100) {
+                        percentage = 270;
+                    } else {
+                        percentage = i * 3.6 - 90;
+                    }
+                    radianStart = ((young_population + work_population) * 3.6 - 90) * Math.PI / 180;
+                    var radianEnd =  percentage * Math.PI / 180;
+                    pen.beginPath();
+                    pen.fillStyle = "rgb(200,0,0)";
+                    pen.moveTo(canvas.width / 2, canvas.height / 2 - 15);
+                    pen.arc(canvas.width / 2, canvas.height / 2 - 15, 120, radianStart, radianEnd, false);
+                    pen.closePath();
+                    pen.fill();
+                }
+            }
+        }
+        pen.beginPath();
+        pen.textAlign = 'center';
+        pen.font = "25px sans-serif";
+        pen.fillStyle = "rgb(0,0,0)";
+        pen.fillText('年齢別人口構成比', canvas.width / 2, 50);
+        pen.font = "15px sans-serif";
+        pen.fillText('~15歳', canvas.width / 2 - 90, 365);
+        pen.fillText('割合' + young_population + '%', canvas.width / 2 - 90, 385);
+        pen.fillText('16~64歳', canvas.width / 2 + 25, 365);
+        pen.fillText('割合' + work_population + '%', canvas.width / 2 + 25, 385);
+        pen.fillText('65~歳', canvas.width / 2 + 130, 365);
+        pen.fillText('割合' + old_population + '%', canvas.width / 2 + 130, 385);
+
+        pen.beginPath();
+        pen.fillStyle = "rgb(0,0,200)";
+        pen.arc(canvas.width / 2 - 140, 370, 15, 0, Math.PI * 2, true);
+        pen.fill();
+
+        pen.beginPath();
+        pen.fillStyle = "rgb(0,200,0)";
+        pen.arc(canvas.width / 2 - 30, 370, 15, 0, Math.PI * 2, true);
+        pen.fill();
+
+        pen.beginPath();
+        pen.fillStyle = "rgb(200,0,0)";
+        pen.arc(canvas.width / 2 + 80, 370, 15, 0, Math.PI * 2, true);
+        pen.fill();
+        chart_version = 1;
+        if (frame == 100) {
+            clearInterval(setinterval);
+        }
+    }
+</script>
+<style>
+body {
+    font-family: sans-serif;
+    margin: 0px;
+}
+h1 {
+    background-color: #39a73b;
+    color: #ffffff;
+    font-size: 30px;
+    margin: 0px;
+    text-align: center;
+}
+p {
+    text-align: center;
+    font-size: 25px;
+    margin: auto;
+}
+canvas {
+    border: 1px solid rgb(0, 0, 0);
+    display: block;
+    margin: auto;
+}
+select {
+    font-size: 25px;
+    margin: 15px auto;
+}
+button {
+    display: block;
+    font-size: 25px;
+    margin: 5px auto;
+}
+div {
+    display: none;
+}
+</style>
+</head>
+<body onload="dropdown(1, 0, 0)">
+<h1>新発田市5歳階級別人口</h1>
+<canvas id="canvas" width="450" height="425"></canvas>
+<p>
+<select id="year" onchange="setting(0)"></select>年
+<select id="month" onchange="setting(0)"></select>月
+</p>
+<div id="population_pyramid">
+    <button onclick="setting(1)">アニメーション</button>
+    <button onclick="setting(2)">円グラフ</button>
+</div>
+<div id="pie_chart">
+    <button onclick="setting(3)">人口ピラミッド</button>
+</div>
+</body>
+</html>
