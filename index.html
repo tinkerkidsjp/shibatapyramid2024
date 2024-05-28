@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=0.75">
-<title>新発田市オープンデータ</title>
+<meta name="viewport" content="width=device-width,initial-scale=0.8">
+<title>新発田市の人口ピラミッド</title>
 <script type="text/javascript" src="database.js"></script>
 <script>
     var data_m = [];
@@ -129,7 +129,7 @@
             setinterval = setInterval(glaph, 1, selected_year - 2016, selected_month - 1, 0);
         } else if (animation_button == 1) {
             chart_version = 0;
-            animation(selected_year - 2016, selected_month - 1);
+            animation();
         }
     }
 
@@ -164,13 +164,13 @@
         for (var i = 0; i < old.length; i++) {
             if (i <= 2) {
                 pen.beginPath();
-                pen.strokeStyle = "rgba(0,0,200,0.75)";
+                pen.strokeStyle = "rgb(0,0,200)";
             } else if (i >= 3 && i <= 12) {
                 pen.beginPath();
-                pen.strokeStyle = "rgba(0,200,0,0.75)";
+                pen.strokeStyle = "rgb(0,200,0)";
             } else if (i >= 13) {
                 pen.beginPath();
-                pen.strokeStyle = "rgba(200,0,0,0.75)";
+                pen.strokeStyle = "rgb(200,0,0)";
             }
             pen.moveTo(canvas.width / 2, 375 - i * 17);
             if (animation_mode == 0) {
@@ -189,13 +189,13 @@
         for (var i = 0; i < old.length; i++) {
             if (i <= 2) {
                 pen.beginPath();
-                pen.strokeStyle = "rgba(0,0,200,0.75)";
+                pen.strokeStyle = "rgb(0,0,200)";
             } else if (i >= 3 && i <= 12) {
                 pen.beginPath();
-                pen.strokeStyle = "rgba(0,200,0,0.75)";
+                pen.strokeStyle = "rgb(0,200,0)";
             } else if (i >= 13) {
                 pen.beginPath();
-                pen.strokeStyle = "rgba(200,0,0,0.75)";
+                pen.strokeStyle = "rgb(200,0,0)";
             }
             pen.moveTo(canvas.width / 2, 375 - i * 17);
             if (animation_mode == 0) {
@@ -214,14 +214,14 @@
         pen.beginPath();
         pen.strokeStyle = "rgb(0,0,0)";
         pen.lineWidth = 1;
-        pen.moveTo(canvas.width / 2 - 0.5, 0);
-        pen.lineTo(canvas.width / 2 - 0.5, 400);
+        pen.moveTo(canvas.width / 2 - 0.5, 25);
+        pen.lineTo(canvas.width / 2 - 0.5, 385);
         pen.stroke();
 
         pen.beginPath();
         pen.font = "17px sans-serif";
         pen.textAlign = 'center';
-        pen.fillText(0, canvas.width / 2, canvas.height - 5);
+        pen.fillText(0, canvas.width / 2, canvas.height - 15);
         pen.textAlign = 'left';
         pen.fillText('男性', 105, 20);
         pen.textAlign = 'right';
@@ -233,15 +233,15 @@
             pen.textAlign = 'center';
             pen.font = "17px sans-serif";
             pen.lineWidth = 1;
-            pen.moveTo(canvas.width / 2 + i * 2000 / 30, 0);
-            pen.lineTo(canvas.width / 2 + i * 2000 / 30, 400);
-            pen.fillText(i * 2000, canvas.width / 2 + i * 2000 / 30, canvas.height - 5);
-            pen.moveTo(canvas.width / 2 - i * 2000 / 30, 0);
-            pen.lineTo(canvas.width / 2 - i * 2000 / 30, 400);
-            pen.fillText(i * 2000, canvas.width / 2 - i * 2000 / 30, canvas.height - 5);
+            pen.moveTo(canvas.width / 2 + i * 2000 / 30, 25);
+            pen.lineTo(canvas.width / 2 + i * 2000 / 30, 385);
+            pen.fillText(i * 2000, canvas.width / 2 + i * 2000 / 30, canvas.height - 15);
+            pen.moveTo(canvas.width / 2 - i * 2000 / 30, 25);
+            pen.lineTo(canvas.width / 2 - i * 2000 / 30, 385);
+            pen.fillText(i * 2000, canvas.width / 2 - i * 2000 / 30, canvas.height - 15);
             pen.stroke();
         }
-        pen.fillText('(人)', canvas.width / 2 + 200, canvas.height - 5);
+        pen.fillText('(人)', canvas.width / 2 + 200, canvas.height - 15);
 
         pen.beginPath();
         pen.fillStyle = "rgb(0,0,0)";
@@ -270,12 +270,22 @@
         old_population = Math.round(old_population * 100 / all_population);
         pen.textAlign = 'center';
         pen.font = "15px sans-serif";
-        pen.fillText('~15歳', canvas.width - 45, 380 - 25);
-        pen.fillText('割合' + young_population + '%', canvas.width - 45, 380 - 5);
-        pen.fillText('16~64歳', canvas.width - 45, 380 - 140);
-        pen.fillText('割合' + work_population + '%', canvas.width - 45, 380 - 120);
-        pen.fillText('65歳~', canvas.width - 45, 380 - 295);
-        pen.fillText('割合' + old_population + '%', canvas.width - 45, 380 - 275);
+        pen.fillText('~15歳', canvas.width - 40, 380 - 25);
+        pen.fillText('割合' + young_population + '%', canvas.width - 40, 380 - 5);
+        pen.fillText('16~64歳', canvas.width - 40, 380 - 140);
+        pen.fillText('割合' + work_population + '%', canvas.width - 40, 380 - 120);
+        pen.fillText('65歳~', canvas.width - 40, 380 - 295);
+        pen.fillText('割合' + old_population + '%', canvas.width - 40, 380 - 275);
+        
+        pen.beginPath();
+        pen.strokeStyle = "rgba(0,0,0,0.5)";
+        pen.lineWidth = 1;
+        pen.moveTo(75, 25);
+        pen.lineTo(canvas.width - 75, 25);
+        pen.lineTo(canvas.width - 75, 385);
+        pen.lineTo(75, 385);
+        pen.lineTo(75, 25);
+        pen.stroke();
 
         if (animation_mode == 0) {
             if (over_frame == old.length * 2) {
@@ -285,11 +295,11 @@
         }
     }
 
-    function animation(selected_year, selected_month) {
+    function animation() {
         if (on_off == 'on') {
             on_off = 'off';
             clearInterval(setinterval);
-            setinterval = setInterval(glaph, 1000/30, selected_year, selected_month, 1);
+            setinterval = setInterval(glaph, 100, 0, 0, 1);
         } else {
             year_gap = 0;
             month_gap = 0;
@@ -444,40 +454,44 @@ h1 {
 p {
     text-align: center;
     font-size: 25px;
-    margin: auto;
+    margin: 10px auto;
 }
 canvas {
-    border: 1px solid rgb(0, 0, 0);
     display: block;
     margin: auto;
 }
 select {
     font-size: 25px;
-    margin: 15px auto;
+    margin: 0px auto;
 }
 button {
     display: block;
     font-size: 25px;
-    margin: 5px auto;
+    margin: 20px auto;
+    margin-bottom: 25px;
 }
 div {
     display: none;
 }
+.url {
+    font-size: 15px;
+}
 </style>
 </head>
 <body onload="dropdown(1, 0, 0)">
-<h1>新発田市5歳階級別人口</h1>
+<h1>新発田市の人口ピラミッド</h1>
 <canvas id="canvas" width="450" height="425"></canvas>
 <p>
 <select id="year" onchange="setting(0)"></select>年
 <select id="month" onchange="setting(0)"></select>月
 </p>
 <div id="population_pyramid">
-    <button onclick="setting(1)">アニメーション</button>
-    <button onclick="setting(2)">円グラフ</button>
+    <button onclick="setting(1)">人口ピラミッドの推移を<br>アニメーションで見る</button>
+    <button onclick="setting(2)">年齢別人口構成比を<br>円グラフで見る</button>
 </div>
 <div id="pie_chart">
-    <button onclick="setting(3)">人口ピラミッド</button>
+    <button onclick="setting(3)">人口ピラミッドに戻る</button>
 </div>
+<p class="url"><a href="https://www.city.shibata.lg.jp/machidukuri/opendata/1024525.html">「5歳階級別人口」（新発田市）</a>を加工して作成</p>
 </body>
 </html>
